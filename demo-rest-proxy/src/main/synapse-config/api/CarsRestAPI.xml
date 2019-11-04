@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/carInfo" name="CarsRestAPI" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" url-mapping="/cars">
+        <inSequence>
+            <log description="Log the incoming request before it being forwarded">
+                <property name="MESSAGE" value="Request received to /cars resource."/>
+            </log>
+            <call description="Request call to the dummy cars api">
+                <endpoint key="CarsHttpEP"/>
+            </call>
+            <respond description="Return the response back to the client"/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+</api>
