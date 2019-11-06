@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<endpoint name="CarsHttpEP" xmlns="http://ws.apache.org/ns/synapse">
-    <http uri-template="https://reqres.in/api">
+<endpoint name="QueryDoctorEP" xmlns="http://ws.apache.org/ns/synapse">
+    <http method="get" uri-template="http://localhost:9090/healthcare/{uri.var.category}">
         <suspendOnFailure>
             <initialDuration>-1</initialDuration>
             <progressionFactor>1.0</progressionFactor>

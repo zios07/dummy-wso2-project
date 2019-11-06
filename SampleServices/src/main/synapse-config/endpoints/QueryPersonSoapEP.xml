@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<endpoint name="UsersHttpEP" xmlns="http://ws.apache.org/ns/synapse">
-    <http uri-template="https://reqres.in/api">
+<endpoint name="QueryPersonSoapEP" xmlns="http://ws.apache.org/ns/synapse">
+    <address format="soap11" statistics="enable" trace="enable" uri="http://www.crcind.com/csp/samples/SOAP.Demo.cls">
         <suspendOnFailure>
             <initialDuration>-1</initialDuration>
             <progressionFactor>1</progressionFactor>
@@ -8,5 +8,5 @@
         <markForSuspension>
             <retriesBeforeSuspension>0</retriesBeforeSuspension>
         </markForSuspension>
-    </http>
+    </address>
 </endpoint>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/healthcare" name="HealthcareAPI" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/querydoctor/{category}">
+        <inSequence>
+            <payloadFactory description="Building the soap payload that will be sent with the request to get the person by its name" media-type="xml">
+                <format>
+                    <tem:GetByName xmlns:tem="http://tempuri.org">
+                        <tem:name>$1</tem:name>
+                    </tem:GetByName>
+                </format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('uri.var.category')"/>
+                </args>
+            </payloadFactory>
+            <header description="Specifying what action we need to execute" name="Action" scope="default" value="http://tempuri.org/SOAP.Demo.GetByName"/>
+            <send description="Send Request Payload to SOAP endpoint">
+                <endpoint key="QueryPersonSoapEP"/>
+            </send>
+        </inSequence>
+        <outSequence>
+            <enrich description="Return just the portion of the response we are interested in">
+                <source clone="true" xpath="//*[local-name() = 'GetByNameResult']"/>
+                <target type="body"/>
+            </enrich>
+            <property description="Convert XML payload to JSON" name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <send description="Send respose payload to the client"/>
+        </outSequence>
+        <faultSequence>
+            <log description="Logging potential errors"/>
+        </faultSequence>
+    </resource>
+</api>
