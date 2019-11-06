@@ -2,31 +2,81 @@
 <api context="/healthcare" name="HealthcareAPI" xmlns="http://ws.apache.org/ns/synapse">
     <resource methods="GET" uri-template="/querydoctor/{category}">
         <inSequence>
-            <payloadFactory description="Building the soap payload that will be sent with the request to get the person by its name" media-type="xml">
-                <format>
-                    <tem:GetByName xmlns:tem="http://tempuri.org">
-                        <tem:name>$1</tem:name>
-                    </tem:GetByName>
-                </format>
-                <args>
-                    <arg evaluator="xml" expression="get-property('uri.var.category')"/>
-                </args>
-            </payloadFactory>
-            <header description="Specifying what action we need to execute" name="Action" scope="default" value="http://tempuri.org/SOAP.Demo.GetByName"/>
-            <send description="Send Request Payload to SOAP endpoint">
-                <endpoint key="QueryPersonSoapEP"/>
+            <log description="Request Log" level="custom">
+                <property name="message" value="&quot;Welcome to HealthcareService&quot;"/>
+            </log>
+            <send>
+                <endpoint key="QueryDoctorEP"/>
             </send>
         </inSequence>
         <outSequence>
-            <enrich description="Return just the portion of the response we are interested in">
-                <source clone="true" xpath="//*[local-name() = 'GetByNameResult']"/>
-                <target type="body"/>
-            </enrich>
-            <property description="Convert XML payload to JSON" name="messageType" scope="axis2" type="STRING" value="application/json"/>
-            <send description="Send respose payload to the client"/>
+            <send/>
         </outSequence>
-        <faultSequence>
-            <log description="Logging potential errors"/>
-        </faultSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" uri-template="/categories/{category}/reserve">
+        <inSequence>
+            <datamapper config="gov:datamapper/NewConfig.dmc" inputSchema="gov:datamapper/NewConfig_inputSchema.json" inputType="JSON" outputSchema="gov:datamapper/NewConfig_outputSchema.json" outputType="JSON" xsltStyleSheet="gov:datamapper/NewConfig_xsltStyleSheet.xml"/>
+            <property description="Get Hospital Name" expression="json-eval($.hospital)" name="Hospital" scope="default" type="STRING"/>
+            <property description="Get Card Number" expression="json-eval($.patient.cardNo)" name="card_number" scope="default" type="STRING"/>
+            <switch source="get-property(&quot;Hospital&quot;)">
+                <case regex="grand oak community hospital">
+                    <property description="Set Hospital Variable" name="uri.var.hospital" scope="default" type="STRING" value="grandoaks"/>
+                    <call>
+                        <endpoint key="GrandOakEP"/>
+                    </call>
+                </case>
+                <case regex="clemency medical center">
+                    <property description="Set Hospital Variable" name="uri.var.hospital" scope="default" type="STRING" value="clemency"/>
+                    <call>
+                        <endpoint key="ClemencyEP"/>
+                    </call>
+                </case>
+                <case regex="pine valley community hospital">
+                    <property description="Set Hospital Variable" name="uri.var.hospital" scope="default" type="STRING" value="pinevalley"/>
+                    <call>
+                        <endpoint key="PineValleyEP"/>
+                    </call>
+                </case>
+                <default>
+                    <log description="fault log" level="custom">
+                        <property expression="fn:concat('Invalid hospital - ', get-property('Hospital'))" name="ERROR"/>
+                    </log>
+                    <respond description="Aborting request"/>
+                </default>
+            </switch>
+            <property description="Get Appointment Number" expression="json-eval($.appointmentNumber)" name="uri.var.appointment_id" scope="default" type="STRING"/>
+            <property description="Get Doctor Details" expression="json-eval($.doctor)" name="doctor_details" scope="default" type="STRING"/>
+            <property description="Get Patient Details" expression="json-eval($.patient)" name="patient_details" scope="default" type="STRING"/>
+            <call>
+                <endpoint key="ChannelingFeeEP"/>
+            </call>
+            <property description="Get Actual Fee" expression="json-eval($.actualFee)" name="actual_fee" scope="default" type="STRING"/>
+            <log description="Print the actual fee" level="custom">
+                <property expression="get-property('actual_fee')" name="ACTUAL FEES"/>
+            </log>
+            <log description="Print patient details" level="custom">
+                <property expression="get-property('patient_details')" name="PATIENT DETAILS"/>
+            </log>
+            <log description="Print Doctor Details" level="custom">
+                <property expression="get-property('doctor_details')" name="DOCTOR DETAILS"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{"appointmentNumber":$1, "doctor":$2, "patient":$3, "fee":$4, "confirmed":"false", "card_number":"$5"}</format>
+                <args>
+                    <arg evaluator="xml" expression="$ctx:uri.var.appointment_id"/>
+                    <arg evaluator="xml" expression="$ctx:doctor_details"/>
+                    <arg evaluator="xml" expression="$ctx:patient_number"/>
+                    <arg evaluator="xml" expression="$ctx:actual_fee"/>
+                    <arg evaluator="xml" expression="$ctx:card_number"/>
+                </args>
+            </payloadFactory>
+            <call>
+                <endpoint key="SettlePaymentEP"/>
+            </call>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
     </resource>
 </api>
