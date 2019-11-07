@@ -19,6 +19,9 @@
             <datamapper config="gov:datamapper/NewConfig.dmc" inputSchema="gov:datamapper/NewConfig_inputSchema.json" inputType="JSON" outputSchema="gov:datamapper/NewConfig_outputSchema.json" outputType="JSON" xsltStyleSheet="gov:datamapper/NewConfig_xsltStyleSheet.xml"/>
             <property description="Get Hospital Name" expression="json-eval($.hospital)" name="Hospital" scope="default" type="STRING"/>
             <property description="Get Card Number" expression="json-eval($.patient.cardNo)" name="card_number" scope="default" type="STRING"/>
+            <log level="custom">
+                <property expression="get-property('Hospital')" name="TARGET HOSTPITAL"/>
+            </log>
             <switch source="get-property(&quot;Hospital&quot;)">
                 <case regex="grand oak community hospital">
                     <property description="Set Hospital Variable" name="uri.var.hospital" scope="default" type="STRING" value="grandoaks"/>
@@ -45,6 +48,9 @@
                     <respond description="Aborting request"/>
                 </default>
             </switch>
+            <log description="Print the result of calling the reservation endpoint" level="full">
+                <property name="STEP" value="Received response from the reservation endpoint"/>
+            </log>
             <property description="Get Appointment Number" expression="json-eval($.appointmentNumber)" name="uri.var.appointment_id" scope="default" type="STRING"/>
             <property description="Get Doctor Details" expression="json-eval($.doctor)" name="doctor_details" scope="default" type="STRING"/>
             <property description="Get Patient Details" expression="json-eval($.patient)" name="patient_details" scope="default" type="STRING"/>
@@ -72,9 +78,11 @@
                 </args>
             </payloadFactory>
             <log description="Print the request payload" level="full"/>
-            <call>
-                <endpoint key="SettlePaymentEP"/>
-            </call>
+            <store description="The store for async messages" messageStore="PaymentRequestMessageStore" sequence="AsyncMessageProcessingSequence"/>
+            <payloadFactory media-type="json">
+                <format>{"message":" Payment request successfully submitted. Payment confirmation will be sent via email ."}</format>
+                <args/>
+            </payloadFactory>
             <respond/>
         </inSequence>
         <outSequence/>

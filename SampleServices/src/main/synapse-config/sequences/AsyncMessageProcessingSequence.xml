@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="AsyncMessageProcessingSequence" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <call>
+        <endpoint key="SettlePaymentEP"/>
+    </call>
+    <log level="full">
+        <property name="STATUS" value="Message sent to the payment service"/>
+    </log>
+    <drop/>
+</sequence>
