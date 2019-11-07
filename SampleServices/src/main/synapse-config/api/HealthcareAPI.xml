@@ -66,11 +66,12 @@
                 <args>
                     <arg evaluator="xml" expression="$ctx:uri.var.appointment_id"/>
                     <arg evaluator="xml" expression="$ctx:doctor_details"/>
-                    <arg evaluator="xml" expression="$ctx:patient_number"/>
+                    <arg evaluator="xml" expression="$ctx:patient_details"/>
                     <arg evaluator="xml" expression="$ctx:actual_fee"/>
                     <arg evaluator="xml" expression="$ctx:card_number"/>
                 </args>
             </payloadFactory>
+            <log description="Print the request payload" level="full"/>
             <call>
                 <endpoint key="SettlePaymentEP"/>
             </call>
