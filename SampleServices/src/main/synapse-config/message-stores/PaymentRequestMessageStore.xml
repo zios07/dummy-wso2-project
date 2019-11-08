@@ -4,10 +4,10 @@
     <parameter name="store.producer.guaranteed.delivery.enable">false</parameter>
     <parameter name="store.rabbitmq.host.port">5672</parameter>
     <parameter name="store.rabbitmq.route.key"/>
-    <parameter name="store.rabbitmq.username">admin</parameter>
+    <parameter name="store.rabbitmq.username">root</parameter>
     <parameter name="store.rabbitmq.virtual.host">/</parameter>
     <parameter name="rabbitmq.connection.ssl.enabled">false</parameter>
     <parameter name="store.rabbitmq.exchange.name">AsyncMessagesExchange</parameter>
     <parameter name="store.rabbitmq.queue.name">AsyncMessagesQueue</parameter>
-    <parameter name="store.rabbitmq.password">admin</parameter>
+    <parameter name="store.rabbitmq.password">root</parameter>
 </messageStore>
